@@ -117,7 +117,7 @@ class Letter(db.Model):
     
     # Parent/Guardian Details
     parent_name = db.Column(db.String(100))
-    parent_no = db.Column(db.Integer)
+    parent_no = db.Column(db.String(100))
     parent_start_time = db.Column(db.DateTime)
     parent_end_time = db.Column(db.DateTime)
     
