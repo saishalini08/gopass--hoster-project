@@ -20,7 +20,7 @@ app.config['SECRET_KEY'] = 'pro_secret_key_99'
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'pro_secret_key_99')
 
-raw_db_url = os.getenv('DATABASE_Adhi_URL')
+raw_db_url = os.getenv('DATABASE_URL')
 use_tmp_sqlite = os.getenv('VERCEL') == '1'
 if raw_db_url:
     app.config['SQLALCHEMY_DATABASE_URI'] = raw_db_url.replace("postgres://", "postgresql://", 1)
