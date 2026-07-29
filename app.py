@@ -679,7 +679,7 @@ def qr_code(letter_id):
 
     # 4. Save to memory buffer
     buf = io.BytesIO()
-    img.save(buf, format='PNG')
+    img.save(buf)
     buf.seek(0)
     
     # 5. Convert to string for HTML
