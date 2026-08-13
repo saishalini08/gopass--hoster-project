@@ -1098,6 +1098,7 @@ def upload_warden():
     
 with app.app_context():
     db.create_all()
+    
     if not User.query.filter_by(username='user').first():
         db.session.add(User(username='user', password='user123'))
         db.session.commit()
