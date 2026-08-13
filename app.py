@@ -12,14 +12,16 @@ from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Lette
 from config import Config
 from bulk_import import bulk_import_file
 
+from flask_migrate import Migrate
+
 # Fetch the exact time specifically for India
 local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 
 app  = Flask(__name__)
 app.config.from_object(Config)
+
 db.init_app(app)
 app.register_blueprint(bulk_import_file)
-
 
 
 login_manager = LoginManager(app)
@@ -27,7 +29,6 @@ login_manager.login_view = 'home'
 
 
 #Migrate Procedure
-from flask_migrate import Migrate
 migrate = Migrate(app, db)
 
 @login_manager.user_loader
@@ -643,7 +644,6 @@ def admin_page(id) :
     
 with app.app_context():
     db.create_all()
-    
     if not User.query.filter_by(username='user').first():
         db.session.add(User(username='user', password='user123'))
         db.session.commit()

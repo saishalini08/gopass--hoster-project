@@ -21,7 +21,7 @@ class Student(UserMixin, db.Model):
     department = db.Column(db.String(100))
     year = db.Column(db.String(2)) 
     college = db.Column(db.String(100))
-    room_no = db.Column(db.String(5))
+    room_no = db.Column(db.String(6))
 
     # Changed from Integer to String(15) to protect leading zeros 
     # and avoid mathematical overflow errors
