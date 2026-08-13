@@ -2,13 +2,12 @@ from flask import Blueprint, render_template, redirect,  request,url_for, flash
 from flask_login import current_user
 import pandas as pd
 from models import db, Student, Warden, Staff, HOD
-import pandas as pd
 
-bulk_import = Blueprint('bulk_import1', __name__)
+bulk_import_file = Blueprint('file_upload',__name__)
 
 
 # ==============================
-# Bulk Upload Route
+# Bulk Upload Route 
 # ==============================
 # --- Helper for File Validation ---
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls'}
@@ -18,7 +17,7 @@ def allowed_file(filename):
 
 
 # --- Route for File Upload & Processing ---
-@bulk_import.route('/upload_students', methods=['GET', 'POST'])
+@bulk_import_file.route('/upload_students', methods=['GET', 'POST'])
 def upload_students():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -61,7 +60,7 @@ def upload_students():
                         
                     existing = Student.query.filter_by(register=register_val).first()
                     if existing:
-                        duplicate_errors.bulk_importend(f"Row {index + 2}: Register '{register_val}' already exists. Skipped.")
+                        duplicate_errors.append(f"Row {index + 2}: Register '{register_val}' already exists. Skipped.")
                         continue
                     
                     student = Student(
@@ -77,7 +76,7 @@ def upload_students():
                         mother_no=row.get('mother_no'),
                         guardient_no=row.get('guardient_no')
                     )
-                    students_to_add.bulk_importend(student)
+                    students_to_add.append(student)
                 
                 if students_to_add:
                     db.session.bulk_save_objects(students_to_add)
@@ -103,7 +102,7 @@ def upload_students():
 
 
 # --- Route for HOD File Upload & Processing ---
-@bulk_import.route('/upload_hod', methods=['GET', 'POST'])
+@bulk_import_file.route('/upload_hod', methods=['GET', 'POST'])
 def upload_hod():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -151,7 +150,7 @@ def upload_hod():
                     # Check for existing username duplicates
                     existing = HOD.query.filter_by(username=username_val).first()
                     if existing:
-                        duplicate_errors.bulk_importend(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
+                        duplicate_errors.append(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
                         continue
                     
                     hod = HOD(
@@ -160,7 +159,7 @@ def upload_hod():
                         department=dept_val,
                         password=password_val # Note: Consider using generate_password_hash in real production environments
                     )
-                    hods_to_add.bulk_importend(hod)
+                    hods_to_add.append(hod)
                 
                 # Bulk Database Save
                 if hods_to_add:
@@ -186,7 +185,7 @@ def upload_hod():
     return render_template('hod_bulk_import.html')
 
 # --- Route for Staff File Upload & Processing ---
-@bulk_import.route('/upload_staff', methods=['GET', 'POST'])
+@bulk_import_file.route('/upload_staff', methods=['GET', 'POST'])
 def upload_staff():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -234,7 +233,7 @@ def upload_staff():
                     # Check for unique username constraint violation
                     existing = Staff.query.filter_by(username=username_val).first()
                     if existing:
-                        duplicate_errors.bulk_importend(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
+                        duplicate_errors.append(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
                         continue
                     
                     staff = Staff(
@@ -243,7 +242,7 @@ def upload_staff():
                         department=dept_val,
                         password=password_val
                     )
-                    staff_to_add.bulk_importend(staff)
+                    staff_to_add.append(staff)
                 
                 # Commit valid rows dynamically
                 if staff_to_add:
@@ -269,7 +268,7 @@ def upload_staff():
     return render_template('staff_bulk_import.html')
 
 # --- Route for Warden File Upload & Processing ---
-@bulk_import.route('/upload_warden', methods=['GET', 'POST'])
+@bulk_import_file.route('/upload_warden', methods=['GET', 'POST'])
 def upload_warden():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -316,7 +315,7 @@ def upload_warden():
                     # Prevent database crashes due to duplicate unique keys
                     existing = Warden.query.filter_by(username=username_val).first()
                     if existing:
-                        duplicate_errors.bulk_importend(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
+                        duplicate_errors.append(f"Row {index + 2}: Username '{username_val}' already exists. Skipped.")
                         continue
                     
                     warden = Warden(
@@ -324,7 +323,7 @@ def upload_warden():
                         name=name_val,
                         password=password_val
                     )
-                    wardens_to_add.bulk_importend(warden)
+                    wardens_to_add.append(warden)
                 
                 # Efficient bulk transaction commit
                 if wardens_to_add:

@@ -6,7 +6,6 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-
 # Stack Holder Details 
 
 class User(UserMixin, db.Model):
@@ -26,10 +25,10 @@ class Student(UserMixin, db.Model):
 
     # Changed from Integer to String(15) to protect leading zeros 
     # and avoid mathematical overflow errors
-    student_no = db.Column(db.String(10))
-    father_no = db.Column(db.String(10))
-    mother_no = db.Column(db.String(10))
-    guardient_no = db.Column(db.String(10))
+    student_no = db.Column(db.String(15),nullable=False)
+    father_no = db.Column(db.String(15),nullable=False)
+    mother_no = db.Column(db.String(15),nullable=False)
+    guardient_no = db.Column(db.String(15),nullable=False)
 
     def __repr__(self):
         return f'<Student {self.register}>'

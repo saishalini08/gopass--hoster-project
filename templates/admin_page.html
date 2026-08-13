@@ -416,7 +416,7 @@
             <div class="card">
                 <h3><span>🎓</span> Student Batch Import</h3>
                 <p>Required structure columns: <code>register</code>, <code>name</code>, <code>dob</code>.</p>
-                <form action="{{ url_for('bulk_import1.upload_students') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('file_upload.upload_students') }}" method="POST" enctype="multipart/form-data">
                     <input type="file" name="file" class="input-file-field" accept=".csv, .xlsx, .xls" required>
                     <button type="submit" class="btn-submit-action">Upload Students Data</button>
                 </form>
@@ -425,7 +425,7 @@
             <div class="card">
                 <h3><span>👔</span> HOD Batch Import</h3>
                 <p>Required structure columns: <code>username</code>, <code>name</code>, <code>password</code>.</p>
-                <form action="/upload_hod" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('file_upload.upload_hod')}}" method="POST" enctype="multipart/form-data">
                     <input type="file" name="file" class="input-file-field" accept=".csv, .xlsx, .xls" required>
                     <button type="submit" class="btn-submit-action">Upload HODs Data</button>
                 </form>

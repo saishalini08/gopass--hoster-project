@@ -10,7 +10,7 @@ import re
 from zoneinfo import ZoneInfo
 from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Letter, DetailedPass 
 from config import Config
-from bulk_import1 import bulk_import
+from bulk_import import bulk_import_file
 
 # Fetch the exact time specifically for India
 local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
@@ -18,7 +18,7 @@ local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 app  = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
-app.register_blueprint(bulk_import)
+app.register_blueprint(bulk_import_file)
 
 
 
