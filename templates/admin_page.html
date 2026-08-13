@@ -434,7 +434,7 @@
             <div class="card">
                 <h3><span>👩‍🏫</span> Staff Batch Import</h3>
                 <p>Required structure columns: <code>username</code>, <code>name</code>, <code>password</code>.</p>
-                <form action="/upload_staff" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('file_upload.upload_staff')}}" method="POST" enctype="multipart/form-data">
                     <input type="file" name="file" class="input-file-field" accept=".csv, .xlsx, .xls" required>
                     <button type="submit" class="btn-submit-action">Upload Staff Data</button>
                 </form>
@@ -443,7 +443,7 @@
             <div class="card">
                 <h3><span>🔑</span> Warden Batch Import</h3>
                 <p>Required structure columns: <code>username</code>, <code>name</code>, <code>password</code>.</p>
-                <form action="/upload_warden" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('file_upload.upload_warden')}}" method="POST" enctype="multipart/form-data">
                     <input type="file" name="file" class="input-file-field" accept=".csv, .xlsx, .xls" required>
                     <button type="submit" class="btn-submit-action">Upload Wardens Data</button>
                 </form>

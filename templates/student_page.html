@@ -425,7 +425,7 @@
     <nav class="navbar">
         <a href="#" class="nav-logo">STUDENT PORTAL</a>
         <div class="nav-links">
-            <a href="{{ url_for('student_profile', student_id=student.id) }}">Profile</a>
+            <a href="{{ url_for('student.student_profile', student_id=student.id) }}">Profile</a>
             <a href="{{ url_for('request_letter', student_id=student.id) }}">New Request</a>
             <a href="/logout" class="logout-link">Logout</a>
         </div>
