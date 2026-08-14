@@ -12,7 +12,8 @@ from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Lette
 from config import Config
 from bulk_import import bulk_import_file
 from student import student_bp
-
+from security import security_bp
+from hod import hod_bp
 from flask_migrate import Migrate
 
 # Fetch the exact time specifically for India
@@ -24,6 +25,8 @@ app.config.from_object(Config)
 db.init_app(app)
 app.register_blueprint(bulk_import_file)
 app.register_blueprint(student_bp)
+app.register_blueprint(security_bp)
+app.register_blueprint(hod_bp)
 
 
 login_manager = LoginManager(app)
@@ -71,166 +74,6 @@ def home() :
 
 
 
-@app.route('/request_letter/<int:student_id>',methods=['GET','POST'])
-@login_required
-def request_letter(student_id) :
-    student = Student.query.get_or_404(student_id)
-    warden =  Warden.query.all()
-    # Query all names and organize into a dictionary
-    # This matches the 'value' attributes in your HTML <select>
-    db_data = {
-        "warden": [w.name for w in Warden.query.all()],
-        "staff": [st.name for st in Staff.query.all()],
-        "HOD" : [h.name for h in HOD.query.all()]
-    }
-    today_date = date.today().strftime('%Y-%m-%d')
-    return render_template('request_letter.html',data=db_data, student=student,warden=warden,today=today_date)
-
-#Security
-@app.route('/security_login',methods=['GET','POST'])
-def security() :
-    if request.method == 'POST' :
-        security = Security.query.filter_by(username=request.form.get('username')).first()
-        if security and security.password == request.form.get('password') :
-            login_user(security)
-            return redirect(url_for('security_page',id=security.id))
-    return render_template('security_login.html')
-
-
-@app.route('/security_page/<int:id>', methods=['GET', 'POST'])
-@login_required
-def security_page(id):
-    if current_user.id != id:
-        return render_template('error_page.html')
-    security = Security.query.get_or_404(id)
-    records = DetailedPass.query.order_by(DetailedPass.scanned_at.desc()).all()
-    return render_template('security_page.html', security=security, records=records)
-
-def get_val(pattern, text):
-    """Extracts values based on your specific QR format labels."""
-    match = re.search(pattern, text, re.IGNORECASE)
-    return match.group(1).strip() if match else "N/A"
-
-@app.route('/open_scanner')
-def open_scanner():
-    records = DetailedPass.query.order_by(DetailedPass.scanned_at.desc()).all()
-    return render_template('scanner.html', records=records)
-
-@app.route('/verify_id', methods=['POST'])
-def verify_id():
-    letter_id = request.form.get('letter_id')
-    
-    # 1. Check if the ID was actually provided
-    if not letter_id:
-        flash("Please enter a Letter ID to verify.", "warning")
-        return redirect(url_for('open_scanner'))
-        
-    # 2. Query the database for the letter
-    letter = Letter.query.filter_by(id=letter_id).first()
-    
-    # 3. Check if the letter exists and if it is 'Approved'
-    if not letter or letter.status != 'Approved':
-        # If it exists but is already complete, give a specific message
-        if letter and letter.status == 'Complete':
-            flash(f"Already Scanned Completed {letter.id}", "warning")
-        else:
-            flash("Invalid Letter ID or not approved.", "error")
-        return redirect(url_for('open_scanner'))
-    
-    # 4. Process the valid, approved letter
-    letter.status = 'Complete'
-    
-    # 5. Create the new DetailedPass record
-    new_record = DetailedPass(
-        letter_id=letter.id,
-        student_name=letter.student_name,
-        dept=letter.student_department,
-        year=letter.student_year,
-        scanned_at=datetime.utcnow()  # Note: Use timezone-aware dates if possible in your app
-    )
-    
-    # 6. Commit both changes to the database in one transaction
-    try:
-        db.session.add(new_record)
-        db.session.commit()
-        flash(f"Gate pass for {letter.student_name} verified successfully.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while saving the data.", "error")
-        # Optional: log the error `e` here
-        
-    return redirect(url_for('open_scanner'))
-
-@app.route('/save_scan', methods=['POST'])
-def save_scan():
-    data = request.get_json()
-    raw_text = data.get('qr_text', '')
-
-    if not raw_text:
-        return jsonify({"status": "error", "message": "No data received"}), 400
-
-    try:
-        # 1. Parse the JSON from the QR code
-        q = json.loads(raw_text)
-        
-        # 2. Map JSON keys to your DetailedPass Database Columns
-        new_record = DetailedPass(
-            letter_id      = str(q.get("ID", "")),
-            student_name   = q.get("Student Name", "Unknown"),
-            dept           = q.get("Department", ""),
-            year           = str(q.get("Year", "")),
-            scanned_at     = datetime.utcnow() # Records exactly when security scanned it
-        )
-
-        db.session.add(new_record)
-        db.session.commit()
-        
-        return jsonify({
-            "status": "success", 
-            "message": f"Pass verified for {new_record.student_name}"
-        }), 200
-
-    except json.JSONDecodeError:
-        return jsonify({"status": "error", "message": "Invalid QR Format. Please use the updated Gate Pass."}), 400
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-# Warden Manage
-@app.route('/warden_login',methods=['POST','GET'])
-def warden_login() :
-    if request.method == 'POST' :
-        warden = Warden.query.filter_by(username=request.form.get('username')).first()
-        if warden and warden.password == request.form.get('password') :
-            login_user(warden)
-            return redirect(url_for('warden_page',id=warden.id))
-    return render_template('warden_login.html')
-
-
-@app.route('/warden_page/<int:id>', methods=['GET', 'POST'])
-@login_required
-def warden_page(id):
-    if current_user.id != id:
-        return render_template('error_page.html')
-    warden = Warden.query.get_or_404(id)
-    letters = Letter.query.filter_by(nameSelection=warden.name).all()
-    
-    return render_template('warden_page.html', warden=warden, letters=letters)
-
-
-@app.route('/add_warden',methods=['GET','POST'])
-def add_warden() :
-    if request.method == 'POST' :
-        new_warden = Warden(
-            username = request.form.get('username'),
-            password = request.form.get('password'),
-            name = request.form.get('name')
-        )
-        db.session.add(new_warden)
-        db.session.commit()
-        return redirect(url_for('home'))
-    return render_template('add_warden.html')
 
 
 #Approve Letter
@@ -251,27 +94,6 @@ def staff_approval_letter(id):
     # Redirect back to the warden's dashboard
     return redirect(url_for('staff_page', id=current_user.id))
 
-@app.route('/hod_approval_letter/<int:id>', methods=['POST', 'GET'])
-@login_required
-def hod_approval_letter(id):
-    letter = Letter.query.get_or_404(id)
-    warden = Warden.query.all()
-    try:
-        # Update the status
-        if request.form.get('nameSelection') :
-            letter.nameSelection = request.form.get('nameSelection')
-            letter.status = 'Pending Warden'
-            db.session.commit()
-        
-        
-        flash(f"Letter from {letter.student_name} has been approved.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating the status.", "danger")
-
-    # Redirect back to the warden's dashboard
-    return redirect(url_for('hod_page', id=current_user.id,warden=warden))
-
 @app.route('/warden_approval_letter/<int:id>', methods=['POST', 'GET'])
 @login_required
 def warden_approval_letter(id):
@@ -289,51 +111,6 @@ def warden_approval_letter(id):
     # Redirect back to the warden's dashboard
     return redirect(url_for('warden_page', id=current_user.id))
 
-
-@app.route('/approval_letter/<int:id>', methods=['POST', 'GET'])
-@login_required
-def approval_letter(id):
-    letter = Letter.query.get_or_404(id)
-    try:
-        # Update the status
-        letter.status = 'Approved'
-        db.session.commit()
-        
-        flash(f"Letter from {letter.student_name} has been approved.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating the status.", "danger")
-
-    # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
-
-@app.route('/warden_page/approval_letters/<int:id>',methods=['GET','POST'])    
-def warden_approval_letter_list(id) :
-    warden = Warden.query.get_or_404(id)
-    letters = Letter.query.all()
-    return render_template('approved_letters.html',warden=warden,letters=letters)
-
-
-
-
-#Reject Letter
-@app.route('/reject_letter/<int:id>', methods=['POST', 'GET'])
-@login_required
-def reject_letter(id):
-    letter = Letter.query.get_or_404(id)
-
-    try:
-        # Update the status
-        letter.status = 'Rejected'
-        db.session.commit()
-        
-        flash(f"Letter from {letter.student_name} has been rejected.", "warning")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating the status.", "danger")
-
-    # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
 
 @app.route('/staff_reject_letter/<int:id>', methods=['POST', 'GET'])
 @login_required
@@ -353,119 +130,6 @@ def staff_reject_letter(id):
     return redirect(url_for('staff_page', id=current_user.id))
 
 
-@app.route('/hod_reject_letter/<int:id>', methods=['POST', 'GET'])
-@login_required
-def hod_reject_letter(id):
-    letter = Letter.query.get_or_404(id)
-    try:
-        # Update the status
-        letter.status = 'Rejected HOD'
-        db.session.commit()
-        
-        flash(f"Letter from {letter.student_name} has been rejected.", "warning")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating the status.", "danger")
-
-    # Redirect back to the warden's dashboard
-    return redirect(url_for('hod_page', id=current_user.id))
-
-@app.route('/warden_reject_letter/<int:id>', methods=['POST', 'GET'])
-@login_required
-def warden_reject_letter(id):
-    letter = Letter.query.get_or_404(id)
-    try:
-        # Update the status
-        letter.status = 'Rejected Warden'
-        db.session.commit()
-        
-        flash(f"Letter from {letter.student_name} has been rejected.", "warning")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating the status.", "danger")
-
-    # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
-
-
-@app.route('/warden_page/rejected_letters/<int:id>',methods=['GET','POST'])    
-def warden_rejected_letter(id) :
-    warden = Warden.query.get_or_404(id)
-    letters = Letter.query.all()
-    return render_template('rejected_letters.html',warden=warden,letters=letters)
-
-    
-#Letter Submit
-@app.route('/submit_request', methods=['POST'])
-def submit_request():
-    if request.method == 'POST':
-        # Convert HTML datetime-local strings to Python datetime objects
-        start_str = request.form.get('parent_start_time')
-        end_str = request.form.get('parent_end_time')
-        
-        # Formatting the time (HTML returns YYYY-MM-DDTHH:MM)
-        start_dt = datetime.strptime(start_str, '%Y-%m-%dT%H:%M') if start_str else None
-        end_dt = datetime.strptime(end_str, '%Y-%m-%dT%H:%M') if end_str else None
-        # 1. First, determine the approval statuses based on the category
-        category = request.form.get('category')
-        if category == 'staff':
-            status = 'Pending Staff'
-        elif category == 'HOD':
-            status = 'Pending HOD'
-        else:
-            status = 'Pending Warden'
-        # 2. Now, safely instantiate the Letter object
-        new_letter = Letter(
-            student_name=request.form.get('student_name'),
-            student_department=request.form.get('department'),
-            student_year=request.form.get('year'),
-            student_college=request.form.get('college'),
-            category=category,
-            nameSelection=request.form.get('nameSelection'),
-            letter_content=request.form.get('letter_content'),
-            request_date=request.form.get('request_date'),
-            parent_name=request.form.get('parent_name'),
-            parent_no=request.form.get('parent_no'),
-            parent_start_time=start_dt,
-            parent_end_time=end_dt,
-            request_category=request.form.get('request_category'),
-            status=status,
-            student_id=current_user.id  # Link to the logged-in student
-        )
-
-        db.session.add(new_letter)
-        db.session.commit()
-        flash("Letter submitted to the warden successfully!", "success")
-        return redirect(url_for('student_page',id=current_user.id))
-
-@app.route('/qr_code/<int:letter_id>', methods=['GET'])
-def qr_code(letter_id):
-    # 1. Get the letter data
-    letter = Letter.query.get_or_404(letter_id)
-    
-    # CRITICAL FIX: Encode just the raw string ID instead of complex JSON
-    qr_data = str(letter.id) 
-
-    # 3. Generate QR Image with High Error Correction
-    qr = qrcode.QRCode(
-        version=None, 
-        error_correction=qrcode.constants.ERROR_CORRECT_M,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(qr_data)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    # 4. Save to memory buffer
-    buf = io.BytesIO()
-    img.save(buf)
-    buf.seek(0)
-    
-    # 5. Convert to string for HTML
-    qr_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
-    
-    return render_template('qr_code.html', qr_code=qr_base64, letter=letter)
 
 # Logout Process
 @app.route('/logout')
@@ -494,26 +158,6 @@ def staff_page(id) :
 
 
 
-#HOD Page
-@app.route('/hod_login',methods=['GET','POST'])
-def hod_login() :
-    if request.method == 'POST':
-        hod = HOD.query.filter_by(username=request.form.get('username')).first()
-        if hod and hod.password == request.form.get('password'):
-            login_user(hod)     
-            return redirect(url_for('hod_page',id=hod.id))
-    return render_template('hod_login.html')
-
-@app.route('/hod_page/<int:id>',methods=['GET','POST'])
-@login_required
-def hod_page(id) :
-    if current_user.id != id:
-        return render_template('error_page.html')
-    hod = HOD.query.get_or_404(id)
-    letters = Letter.query.filter_by(student_department=hod.department).all()
-    warden = Warden.query.all()
-    return render_template('hod_page.html',hod=hod,letters=letters,warden=warden)
-
 
 #Admin Page
 @app.route('/admin_login',methods=['GET','POST'])
@@ -538,34 +182,6 @@ with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='user').first():
         db.session.add(User(username='user', password='user123'))
-        db.session.commit()
-    # Added .first() to actually fetch a record or None
-    if not Student.query.filter_by(register='410123243006').first():
-        db.session.add(Student(
-            register='410123243006', 
-            dob="2006-01-19", 
-            name='Bharath',
-            department="AI&DS",
-            year='4',
-            college='ACET',
-            room_no='AD214',
-            student_no='7418771913',
-            father_no='9364290146',
-            mother_no='9092051423',
-            guardient_no='9710210537'
-        ))
-        db.session.commit()
-    if not Warden.query.filter_by(username='suresh').first() :
-        db.session.add(Warden(username='suresh', password='suresh123',name='Mr.Suresh'))
-        db.session.commit()
-    if not Security.query.filter_by(username='security').first() :
-        db.session.add(Security(username='security', password='security123',name='SecurityName'))
-        db.session.commit()
-    if not Staff.query.filter_by(username='asha').first() :
-        db.session.add(Staff(username='asha', password='asha123',name='Ms.Asha Marry',department='AI&DS'))
-        db.session.commit()
-    if not HOD.query.filter_by(username='hod_aids').first() :
-        db.session.add(HOD(username='hod_aids', password='aids',name='Dr. V.BELMER GLADSON',department='AI&DS'))
         db.session.commit()
     if not Admin.query.filter_by(username='Adhi').first() :
         db.session.add(Admin(username='Adhi', password='Adhi123',name='Adhi Admin'))
