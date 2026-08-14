@@ -17,7 +17,7 @@ def hod_login() :
         if hod and hod.password == request.form.get('password'):
             login_user(hod)     
             return redirect(url_for('hod_page',id=hod.id))
-    return render_template('hod_login.html')
+    return render_template('hod/hod_login.html')
 
 @hod_bp.route('/hod_page/<int:id>',methods=['GET','POST'])
 @login_required
@@ -27,7 +27,7 @@ def hod_page(id) :
     hod = HOD.query.get_or_404(id)
     letters = Letter.query.filter_by(student_department=hod.department).all()
     warden = Warden.query.all()
-    return render_template('hod_page.html',hod=hod,letters=letters,warden=warden)
+    return render_template('hod/hod_page.html',hod=hod,letters=letters,warden=warden)
 
 @hod_bp.route('/hod_approval_letter/<int:id>', methods=['POST', 'GET'])
 @login_required

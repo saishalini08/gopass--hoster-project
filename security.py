@@ -15,7 +15,7 @@ def security() :
         if security and security.password == request.form.get('password') :
             login_user(security)
             return redirect(url_for('security_page',id=security.id))
-    return render_template('security_login.html')
+    return render_template('security/security_login.html')
 
 
 @security_bp.route('/security_page/<int:id>', methods=['GET', 'POST'])
@@ -25,7 +25,7 @@ def security_page(id):
         return render_template('error_page.html')
     security = Security.query.get_or_404(id)
     records = DetailedPass.query.order_by(DetailedPass.scanned_at.desc()).all()
-    return render_template('security_page.html', security=security, records=records)
+    return render_template('security/security_page.html', security=security, records=records)
 
 def get_val(pattern, text):
     """Extracts values based on your specific QR format labels."""

@@ -19,7 +19,7 @@ def student_login() :
         if student and student.dob == request.form.get('dob') :
             login_user(student)
             return redirect(url_for('student.student_page',id=student.id))
-    return render_template('student_login.html')
+    return render_template('student/student_login.html')
 
 
 @student_bp.route('/student_page/<int:id>')
@@ -30,12 +30,12 @@ def student_page(id) :
     student = Student.query.get_or_404(id)
     # Fetch letters to display on the dashboard
     letters = Letter.query.filter_by(student_id=id).order_by(Letter.id.desc()).all()
-    return render_template('student_page.html', student=student,letters=letters)
+    return render_template('student/student_page.html', student=student,letters=letters)
 
 @student_bp.route('/student_profile/<int:student_id>')
 def student_profile(student_id) :
     student = Student.query.get_or_404(student_id)
-    return render_template('student_profile.html',student=student)
+    return render_template('student/student_profile.html',student=student)
 
 @student_bp.route('/request_letter/<int:student_id>',methods=['GET','POST'])
 @login_required
@@ -50,62 +50,14 @@ def request_letter(student_id) :
         "HOD" : [h.name for h in HOD.query.all()]
     }
     today_date = date.today().strftime('%Y-%m-%d')
-    return render_template('request_letter.html',data=db_data, student=student,warden=warden,today=today_date)
+    return render_template('student/request_letter.html',data=db_data, student=student,warden=warden,today=today_date)
 
-
-@student_bp.route('/add_student',methods=['GET','POST'])
-def add_student() :
-    if request.method == 'POST':
-        # Account & Personal Info
-        register = request.form.get('register')
-        dob = request.form.get('dob')
-        name = request.form.get('name')
-        
-        # Academic & Location Info
-        department = request.form.get('department')
-        year = request.form.get('year')
-        college = request.form.get('college')
-        room_no = request.form.get('room_no')
-        
-        # Contact Numbers (Converted to integers where necessary)
-        # Using .get() ensures it doesn't crash if a field is empty
-        student_no = request.form.get('student_no')
-        father_no = request.form.get('father_no')
-        mother_no = request.form.get('mother_no')
-        guardient_no = request.form.get('guardient_no')
-
-        # Create the new student object with all fields
-        new_student = Student(
-            register=register, 
-            dob=dob, 
-            name=name,
-            department=department,
-            year=year,
-            college=college,
-            room_no=room_no,
-            student_no=student_no,
-            father_no=father_no,
-            mother_no=mother_no,
-            guardient_no=guardient_no
-        )
-
-        # Add to database and commit
-        try:
-            db.session.add(new_student)
-            db.session.commit()
-            return redirect(url_for('home'))
-            # Redirect or flash success message here
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error: {e}")
-            # Handle error (e.g., duplicate username)
-    return render_template('add_student.html')
 
 @student_bp.route('/students', methods=['GET'])
 def view_students():
     # Fetch all students out of your model database
     students = Student.query.order_by(Student.register.asc()).all()
-    return render_template('students.html', students=students)
+    return render_template('student/students.html', students=students)
 
 @student_bp.route('/student/edit/<int:id>', methods=['GET', 'POST'])
 def edit_student(id):
