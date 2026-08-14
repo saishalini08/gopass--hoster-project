@@ -16,7 +16,7 @@ def staff_login() :
         staff = Staff.query.filter_by(username=request.form.get('username')).first()
         if staff and staff.password == request.form.get('password'):
             login_user(staff)
-            return redirect(url_for('staff_page',id=staff.id))
+            return redirect(url_for('staff.staff_page',id=staff.id))
     return render_template('staff/staff_login.html')
 
 @staff_bp.route('/staff_page/<int:id>',methods=['GET','POST'])
@@ -45,7 +45,7 @@ def staff_approval_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('staff_page', id=current_user.id))
+    return redirect(url_for('staff.staff_page', id=current_user.id))
 
 
 
@@ -64,5 +64,5 @@ def staff_reject_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('staff_page', id=current_user.id))
+    return redirect(url_for('staff.staff_page', id=current_user.id))
 

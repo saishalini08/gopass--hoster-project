@@ -17,7 +17,7 @@ def warden_login() :
         warden = Warden.query.filter_by(username=request.form.get('username')).first()
         if warden and warden.password == request.form.get('password') :
             login_user(warden)
-            return redirect(url_for('warden_page',id=warden.id))
+            return redirect(url_for('warden.warden_page',id=warden.id))
     return render_template('warden/warden_login.html')
 
 
@@ -48,7 +48,7 @@ def warden_approval_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
+    return redirect(url_for('warden.warden_page', id=current_user.id))
 
 
 @warden_bp.route('/approval_letter/<int:id>', methods=['POST', 'GET'])
@@ -66,14 +66,14 @@ def approval_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
+    return redirect(url_for('warden.warden_page', id=current_user.id))
 
 
 @warden_bp.route('/warden_page/approval_letters/<int:id>',methods=['GET','POST'])    
 def warden_approval_letter_list(id) :
     warden = Warden.query.get_or_404(id)
     letters = Letter.query.all()
-    return render_template('approved_letters.html',warden=warden,letters=letters)
+    return render_template('warden/approved_letters.html',warden=warden,letters=letters)
 
 #Reject Letter
 @warden_bp.route('/reject_letter/<int:id>', methods=['POST', 'GET'])
@@ -92,7 +92,7 @@ def reject_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
+    return redirect(url_for('warden.warden_page', id=current_user.id))
 
 
 
@@ -111,12 +111,12 @@ def warden_reject_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('warden_page', id=current_user.id))
+    return redirect(url_for('warden.warden_page', id=current_user.id))
 
 
 @warden_bp.route('/warden_page/rejected_letters/<int:id>',methods=['GET','POST'])    
 def warden_rejected_letter(id) :
     warden = Warden.query.get_or_404(id)
     letters = Letter.query.all()
-    return render_template('rejected_letters.html',warden=warden,letters=letters)
+    return render_template('warden/rejected_letters.html',warden=warden,letters=letters)
 

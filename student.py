@@ -12,7 +12,7 @@ student_bp = Blueprint('student',__name__)
 
 # Student Manage
 
-@student_bp.route('/student_login',methods=['POST','GET'])
+@student_bp.route('/student_login', methods=['POST','GET'])
 def student_login() :
     if request.method == 'POST' :
         student = Student.query.filter_by(register=request.form.get('register')).first()
@@ -80,7 +80,7 @@ def edit_student(id):
         flash('Student file data modified successfully.')
         return redirect(url_for('student.view_students'))
         
-    return render_template('edit_student.html', student=student)
+    return render_template('student/edit_student.html', student=student)
 
 @student_bp.route('/student/delete/<int:id>', methods=['GET','POST'])
 def delete_student(id):
@@ -131,7 +131,7 @@ def submit_request():
         db.session.add(new_letter)
         db.session.commit()
         flash("Letter submitted to the warden successfully!", "success")
-        return redirect(url_for('student_page',id=current_user.id))
+        return redirect(url_for('student.student_page',id=current_user.id))
 
 @student_bp.route('/qr_code/<int:letter_id>', methods=['GET'])
 def qr_code(letter_id):
@@ -160,4 +160,4 @@ def qr_code(letter_id):
     # 5. Convert to string for HTML
     qr_base64 = base64.b64encode(buf.getvalue()).decode('ascii')
     
-    return render_template('qr_code.html', qr_code=qr_base64, letter=letter)
+    return render_template('scanner/qr_code.html', qr_code=qr_base64, letter=letter)

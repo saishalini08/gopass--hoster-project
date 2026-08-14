@@ -16,7 +16,7 @@ def hod_login() :
         hod = HOD.query.filter_by(username=request.form.get('username')).first()
         if hod and hod.password == request.form.get('password'):
             login_user(hod)     
-            return redirect(url_for('hod_page',id=hod.id))
+            return redirect(url_for('hod.hod_page',id=hod.id))
     return render_template('hod/hod_login.html')
 
 @hod_bp.route('/hod_page/<int:id>',methods=['GET','POST'])
@@ -48,7 +48,7 @@ def hod_approval_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('hod_page', id=current_user.id,warden=warden))
+    return redirect(url_for('hod.hod_page', id=current_user.id,warden=warden))
 
 
 @hod_bp.route('/hod_reject_letter/<int:id>', methods=['POST', 'GET'])
@@ -66,4 +66,4 @@ def hod_reject_letter(id):
         flash("An error occurred while updating the status.", "danger")
 
     # Redirect back to the warden's dashboard
-    return redirect(url_for('hod_page', id=current_user.id))
+    return redirect(url_for('hod.hod_page', id=current_user.id))

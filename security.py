@@ -14,7 +14,7 @@ def security() :
         security = Security.query.filter_by(username=request.form.get('username')).first()
         if security and security.password == request.form.get('password') :
             login_user(security)
-            return redirect(url_for('security_page',id=security.id))
+            return redirect(url_for('security.security_page',id=security.id))
     return render_template('security/security_login.html')
 
 
@@ -35,7 +35,7 @@ def get_val(pattern, text):
 @security_bp.route('/open_scanner')
 def open_scanner():
     records = DetailedPass.query.order_by(DetailedPass.scanned_at.desc()).all()
-    return render_template('scanner.html', records=records)
+    return render_template('scanner/scanner.html', records=records)
 
 @security_bp.route('/verify_id', methods=['POST'])
 def verify_id():
@@ -44,7 +44,7 @@ def verify_id():
     # 1. Check if the ID was actually provided
     if not letter_id:
         flash("Please enter a Letter ID to verify.", "warning")
-        return redirect(url_for('open_scanner'))
+        return redirect(url_for('security.open_scanner'))
         
     # 2. Query the database for the letter
     letter = Letter.query.filter_by(id=letter_id).first()
@@ -56,7 +56,7 @@ def verify_id():
             flash(f"Already Scanned Completed {letter.id}", "warning")
         else:
             flash("Invalid Letter ID or not approved.", "error")
-        return redirect(url_for('open_scanner'))
+        return redirect(url_for('security.open_scanner'))
     
     # 4. Process the valid, approved letter
     letter.status = 'Complete'
@@ -80,7 +80,7 @@ def verify_id():
         flash("An error occurred while saving the data.", "error")
         # Optional: log the error `e` here
         
-    return redirect(url_for('open_scanner'))
+    return redirect(url_for('security.open_scanner'))
 
 @security_bp.route('/save_scan', methods=['POST'])
 def save_scan():

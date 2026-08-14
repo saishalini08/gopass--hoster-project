@@ -350,8 +350,8 @@
         </div>
 
         <nav class="nav-group">
-            <a href="/hod_page/approval_letters/{{ hod.id }}">Approved Log</a>
-            <a href="/hod_page/hod_rejected_letters/{{ hod.id }}">Rejected Log</a>
+            <!-- <a href="/hod_page/approval_letters/{{ hod.id }}">Approved Log</a>
+            <a href="/hod_page/hod_rejected_letters/{{ hod.id }}">Rejected Log</a> -->
             <a href="/logout" class="logout-btn">Logout</a>
         </nav>
     </header>
@@ -399,7 +399,7 @@
                     <div class="card-footer">
 
                         <div class="action-buttons">
-                            <form action="{{ url_for('hod_approval_letter', id=l.id) }}" method="POST"
+                            <form action="{{ url_for('hod.hod_approval_letter', id=l.id) }}" method="POST"
                                 class="approval-form">
                                 <select required name="nameSelection" id="nameSelection">
                                     <option value="">Choose Options...</option>
@@ -411,7 +411,7 @@
                                 <button type="submit" class="btn approve">Approve</button>
                             </form>
 
-                            <a class="btn reject" href="{{ url_for('hod_reject_letter', id=l.id) }}"
+                            <a class="btn reject" href="{{ url_for('hod.hod_reject_letter', id=l.id) }}"
                                 onclick="return confirm('Reject this request?');">Reject</a>
                         </div>
                     </div>

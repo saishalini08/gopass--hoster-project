@@ -326,8 +326,8 @@
         </div>
 
         <nav class="nav-group">
-            <a href="/warden_page/approval_letters/{{ warden.id }}">Approved Log</a>
-            <a href="/warden_page/rejected_letters/{{ warden.id }}">Rejected Log</a>
+            <!-- <a href="/warden_page/approval_letters/{{ warden.id }}">Approved Log</a>
+            <a href="/warden_page/rejected_letters/{{ warden.id }}">Rejected Log</a> -->
             <a href="/logout" class="logout-btn">Logout</a>
         </nav>
     </header>
@@ -374,10 +374,10 @@
                     <div class="card-footer">
                                          
                         <div class="action-buttons">
-                            <a class="btn approve" href="{{ url_for('approval_letter', id=l.id) }}"
+                            <a class="btn approve" href="{{ url_for('warden.approval_letter', id=l.id) }}"
                                 onclick="return confirm('Approve this request?');">Approve</a>
 
-                            <a class="btn reject" href="{{ url_for('warden_reject_letter', id=l.id) }}"
+                            <a class="btn reject" href="{{ url_for('warden.warden_reject_letter', id=l.id) }}"
                                 onclick="return confirm('Reject this request?');">Reject</a>
                         </div>
                     </div>
