@@ -2,11 +2,6 @@ from flask import Flask, render_template, redirect, session, request,url_for, fl
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, logout_user
 import json
 from datetime import date, datetime
-import qrcode
-import io
-import base64
-import pandas as pd
-import re
 from zoneinfo import ZoneInfo
 from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Letter, DetailedPass 
 from config import Config
@@ -19,6 +14,7 @@ from staff import staff_bp
 from admin import admin_bp
 from flask_migrate import Migrate
 
+hi purushothaman
 
 # Fetch the exact time specifically for India
 local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
