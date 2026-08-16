@@ -14,7 +14,7 @@ from staff import staff_bp
 from admin import admin_bp
 from flask_migrate import Migrate
 
-hi purushothaman
+
 
 # Fetch the exact time specifically for India
 local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
