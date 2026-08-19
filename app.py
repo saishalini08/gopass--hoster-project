@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, session, request,url_for, flash, jsonify
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, logout_user
 import json
+from flask_cors import CORS
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Letter, DetailedPass 
@@ -12,6 +13,7 @@ from hod import hod_bp
 from warden import warden_bp
 from staff import staff_bp
 from admin import admin_bp
+from location1 import location_bp
 from flask_migrate import Migrate
 
 
@@ -21,6 +23,7 @@ local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 
 app  = Flask(__name__)
 app.config.from_object(Config)
+CORS(app) 
 
 db.init_app(app)
 app.register_blueprint(bulk_import_file)
@@ -30,6 +33,7 @@ app.register_blueprint(hod_bp)
 app.register_blueprint(warden_bp)
 app.register_blueprint(staff_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(location_bp)
 
 
 login_manager = LoginManager(app)
