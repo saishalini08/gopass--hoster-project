@@ -91,7 +91,7 @@ class Letter(db.Model):
     parent_end_time = db.Column(db.DateTime)
     
     # Status & Routing
-    status = db.Column(db.String(20), default='Progress') # Pending, Approved, Rejected
+    status = db.Column(db.String(20), default='active') # Pending, Approved, Rejected
     # warden_name = db.Column(db.String(50)) # The ID of the warden selected in the form
     
     # Relationship Link

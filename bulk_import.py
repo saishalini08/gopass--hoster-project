@@ -3,7 +3,7 @@ from flask_login import current_user
 import pandas as pd
 from models import db, Student, Warden, Staff, HOD
 
-bulk_import_file = Blueprint('file_upload',__name__)
+bulk_import_file = Blueprint('file_upload', __name__)
 
 
 # ==============================

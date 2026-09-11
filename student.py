@@ -59,6 +59,11 @@ def view_students():
     students = Student.query.order_by(Student.register.asc()).all()
     return render_template('student/students.html', students=students)
 
+
+# @student_bp.route('/student/student_list')
+# def student_list() :
+    
+
 @student_bp.route('/student/edit/<int:id>', methods=['GET', 'POST'])
 def edit_student(id):
     student = Student.query.get_or_404(id)
