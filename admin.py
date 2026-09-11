@@ -22,6 +22,8 @@ def admin_page(id) :
     admin = Admin.query.get_or_404(id)
     return render_template('admin/admin_page.html', admin=admin)
 
+
+
 @admin_bp.route('/add_warden',methods=['GET','POST'])
 def add_warden() :
     if request.method == 'POST' :
