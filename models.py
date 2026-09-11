@@ -27,6 +27,7 @@ class Student(UserMixin, db.Model):
     father_no = db.Column(db.String(15),nullable=False)
     mother_no = db.Column(db.String(15),nullable=False)
     guardient_no = db.Column(db.String(15),nullable=False)
+    status = db.Column(db.String(20),default="In Campus")
 
     def __repr__(self):
         return f'<Student {self.register}>'
@@ -67,6 +68,7 @@ class Admin(UserMixin, db.Model) :
 class Letter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Student Info (Snapshot at time of request)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     student_name = db.Column(db.String(50))
     student_department = db.Column(db.String(60))
     student_year = db.Column(db.String(10))
@@ -79,6 +81,9 @@ class Letter(db.Model):
     request_category = db.Column(db.String(50))
     request_date = db.Column(db.String(20)) # The date string from the form
     
+
+    # Adds a relationship directly to the Student model
+    student = db.relationship('Student', backref='letters')
     # Parent/Guardian Details
     parent_name = db.Column(db.String(100))
     parent_no = db.Column(db.String(100))

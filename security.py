@@ -48,6 +48,8 @@ def verify_id():
         
     # 2. Query the database for the letter
     letter = Letter.query.filter_by(id=letter_id).first()
+    if letter:
+        student = letter.student  # Automatically fetches the linked Student object
     
     # 3. Check if the letter exists and if it is 'Approved'
     if not letter or letter.status != 'Approved':
