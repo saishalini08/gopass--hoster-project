@@ -14,6 +14,7 @@ from warden import warden_bp
 from staff import staff_bp
 from admin import admin_bp
 from location import location_bp
+from datetime import timedelta
 from flask_migrate import Migrate
 
 
@@ -23,6 +24,7 @@ local_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 
 app  = Flask(__name__)
 app.config.from_object(Config)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
 CORS(app) 
 
 db.init_app(app)
@@ -85,7 +87,25 @@ def home() :
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+@app.before_request
+def make_session_permanent():
+    # Makes every active session observe the 15-minute timeout window
+    session.permanent = True
     
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+# Custom 500 - Internal Server Error
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('errors/500.html'), 500
+
+# Custom 403 - Access Forbidden (e.g., location out of bounds)
+@app.errorhandler(403)
+def forbidden_access(e):
+    return render_template('errors/403.html'), 403
     
 with app.app_context():
     db.create_all()
