@@ -13,7 +13,7 @@ from hod import hod_bp
 from warden import warden_bp
 from staff import staff_bp
 from admin import admin_bp
-from location1 import location_bp
+from location import location_bp
 from flask_migrate import Migrate
 
 
@@ -37,7 +37,7 @@ app.register_blueprint(location_bp)
 
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'home'
+login_manager.login_view = 'home'   
 
 
 #Migrate Procedure
@@ -98,5 +98,5 @@ with app.app_context():
 
 
 if __name__ == '__main__' :
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
