@@ -80,6 +80,7 @@ class Letter(db.Model):
     letter_content = db.Column(db.Text)   # The main body text
     request_category = db.Column(db.String(50))
     request_date = db.Column(db.String(20)) # The date string from the form
+    in_date_time = db.Column(db.String(20))
     
 
     # Adds a relationship directly to the Student model
