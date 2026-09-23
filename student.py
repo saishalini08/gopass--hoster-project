@@ -59,10 +59,12 @@ def view_students():
     students = Student.query.order_by(Student.register.asc()).all()
     return render_template('student/students.html', students=students)
 
-
-# @student_bp.route('/student/student_list')
-# def student_list() :
-    
+@student_bp.route('/student/delete/<int:id>', methods=['GET','POST'])
+def delete_student(id):
+    student = Student.query.get_or_404(id)
+    db.session.delete(student)
+    db.session.commit()
+    return redirect(url_for('student.view_students')) 
 
 @student_bp.route('/student/edit/<int:id>', methods=['GET', 'POST'])
 def edit_student(id):
@@ -86,14 +88,6 @@ def edit_student(id):
         return redirect(url_for('student.view_students'))
         
     return render_template('student/edit_student.html', student=student)
-
-@student_bp.route('/student/delete/<int:id>', methods=['GET','POST'])
-def delete_student(id):
-    student = Student.query.get_or_404(id)
-    db.session.delete(student)
-    db.session.commit()
-    return redirect(url_for('student.view_students'))
-
     
 #Letter Submit
 @student_bp.route('/submit_request', methods=['POST'])
@@ -123,6 +117,8 @@ def submit_request():
             category=category,
             nameSelection=request.form.get('nameSelection'),
             letter_content=request.form.get('letter_content'),
+            out_date_time = request.form.get('out_date_time'),
+            in_date_time = request.form.get('in_date_time'),
             request_date=request.form.get('request_date'),
             parent_name=request.form.get('parent_name'),
             parent_no=request.form.get('parent_no'),

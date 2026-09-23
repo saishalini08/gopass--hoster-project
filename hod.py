@@ -29,6 +29,19 @@ def hod_page(id) :
     warden = Warden.query.all()
     return render_template('hod/hod_page.html',hod=hod,letters=letters,warden=warden)
 
+
+@hod_bp.route('/view_hod',methods=['GET','POST'])
+def view_hod() :
+    hods = HOD.query.all()
+    return render_template('hod/hod.html',hods=hods)
+
+@hod_bp.route('/hod/delete/<int:id>', methods=['GET','POST'])
+def delete_hod(id):
+    hod = HOD.query.get_or_404(id)
+    db.session.delete(hod)
+    db.session.commit()
+    return redirect(url_for('hod.view_hod')) 
+
 @hod_bp.route('/hod_approval_letter/<int:id>', methods=['POST', 'GET'])
 @login_required
 def hod_approval_letter(id):

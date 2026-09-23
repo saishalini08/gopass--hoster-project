@@ -28,6 +28,17 @@ def staff_page(id) :
     letters = Letter.query.filter_by(nameSelection=staff.name).all()
     return render_template('staff/staff_page.html',staff=staff,letters=letters)
 
+@staff_bp.route('/view_staff',methods=['GET','POST'])
+def view_staff() :
+    staff = Staff.query.all()
+    return render_template('staff/staff.html',staff=staff)
+
+@staff_bp.route('/staff/delete/<int:id>', methods=['GET','POST'])
+def delete_staff(id):
+    staff = Staff.query.get_or_404(id)
+    db.session.delete(staff)
+    db.session.commit()
+    return redirect(url_for('staff.view_staff')) 
 
 #Approve Letter
 @staff_bp.route('/staff_approval_letter/<int:id>', methods=['POST', 'GET'])

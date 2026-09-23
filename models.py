@@ -20,13 +20,15 @@ class Student(UserMixin, db.Model):
     year = db.Column(db.String(2)) 
     college = db.Column(db.String(100))
     room_no = db.Column(db.String(6))
+    gender = db.Column(db.String(10),default="Male")
+    accommodation_type = db.Column(db.String(20),default="Hostel")
 
     # Changed from Integer to String(15) to protect leading zeros 
     # and avoid mathematical overflow errors
     student_no = db.Column(db.String(15),nullable=False)
-    father_no = db.Column(db.String(15),nullable=False)
-    mother_no = db.Column(db.String(15),nullable=False)
-    guardient_no = db.Column(db.String(15),nullable=False)
+    father_no = db.Column(db.String(15),nullable=True)
+    mother_no = db.Column(db.String(15),nullable=True)
+    guardient_no = db.Column(db.String(15),nullable=True)
     status = db.Column(db.String(20),default="In Campus")
 
     def __repr__(self):
@@ -80,9 +82,9 @@ class Letter(db.Model):
     letter_content = db.Column(db.Text)   # The main body text
     request_category = db.Column(db.String(50))
     request_date = db.Column(db.String(20)) # The date string from the form
+    out_date_time = db.Column(db.String(20))
     in_date_time = db.Column(db.String(20))
     
-
     # Adds a relationship directly to the Student model
     student = db.relationship('Student', backref='letters')
     # Parent/Guardian Details

@@ -51,9 +51,6 @@ def add_student() :
         year = request.form.get('year')
         college = request.form.get('college')
         room_no = request.form.get('room_no')
-        
-        # Contact Numbers (Converted to integers where necessary)
-        # Using .get() ensures it doesn't crash if a field is empty
         student_no = request.form.get('student_no')
         father_no = request.form.get('father_no')
         mother_no = request.form.get('mother_no')

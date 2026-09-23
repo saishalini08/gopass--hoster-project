@@ -2,7 +2,6 @@
 from flask import Blueprint, render_template, redirect, session, request,url_for, flash, jsonify
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, logout_user
 from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Letter, DetailedPass 
-
 from student import student_bp
 from security import security_bp
 from hod import hod_bp
@@ -32,6 +31,18 @@ def warden_page(id):
     return render_template('warden/warden_page.html', warden=warden, letters=letters)
 
 
+
+@warden_bp.route('/view_warden',methods=['GET','POST'])
+def view_warden() :
+    warden = Warden.query.all()
+    return render_template('warden/warden.html',wardens=warden)
+
+@warden_bp.route('/warden/delete/<int:id>', methods=['GET','POST'])
+def delete_warden(id):
+    warden = Warden.query.get_or_404(id)
+    db.session.delete(warden)
+    db.session.commit()
+    return redirect(url_for('warden.view_warden')) 
 
 @warden_bp.route('/warden_approval_letter/<int:id>', methods=['POST', 'GET'])
 @login_required
