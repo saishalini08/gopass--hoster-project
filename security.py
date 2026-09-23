@@ -32,6 +32,19 @@ def get_val(pattern, text):
     match = re.search(pattern, text, re.IGNORECASE)
     return match.group(1).strip() if match else "N/A"
 
+@security_bp.route('/view_security',methods=['GET','POST'])
+def view_security() :
+    security = Security.query.all()
+    return render_template('security/security.html',security_list=security)
+
+@security_bp.route('/security/delete/<int:id>', methods=['GET','POST'])
+def delete_security(id):
+    security = Security.query.get_or_404(id)
+    db.session.delete(security)
+    db.session.commit()
+    return redirect(url_for('security.view_security')) 
+
+
 @security_bp.route('/open_scanner')
 def open_scanner():
     records = DetailedPass.query.order_by(DetailedPass.scanned_at.desc()).all()

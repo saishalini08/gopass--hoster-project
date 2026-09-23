@@ -1,11 +1,9 @@
-
 from flask import Blueprint, render_template, redirect, session, request,url_for, flash, jsonify
 from flask_login import LoginManager, login_manager,  login_user, login_required, current_user, logout_user
 from models import db, User, Student, Warden, Security, Staff, HOD, Admin, Letter, DetailedPass 
 from student import student_bp
 from security import security_bp
 from hod import hod_bp
-
 
 warden_bp = Blueprint('warden',__name__)
 
@@ -19,7 +17,6 @@ def warden_login() :
             return redirect(url_for('warden.warden_page',id=warden.id))
     return render_template('warden/warden_login.html')
 
-
 @warden_bp.route('/warden_page/<int:id>', methods=['GET', 'POST'])
 @login_required
 def warden_page(id):
@@ -27,10 +24,7 @@ def warden_page(id):
         return render_template('error_page.html')
     warden = Warden.query.get_or_404(id)
     letters = Letter.query.filter_by(nameSelection=warden.name).all()
-    
     return render_template('warden/warden_page.html', warden=warden, letters=letters)
-
-
 
 @warden_bp.route('/view_warden',methods=['GET','POST'])
 def view_warden() :

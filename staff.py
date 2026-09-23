@@ -58,8 +58,6 @@ def staff_approval_letter(id):
     # Redirect back to the warden's dashboard
     return redirect(url_for('staff.staff_page', id=current_user.id))
 
-
-
 @staff_bp.route('/staff_reject_letter/<int:id>', methods=['POST', 'GET'])
 @login_required
 def staff_reject_letter(id):

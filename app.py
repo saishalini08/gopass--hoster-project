@@ -115,6 +115,10 @@ with app.app_context():
     if not Admin.query.filter_by(username='Adhi').first() :
         db.session.add(Admin(username='Adhi', password='Adhi123',name='Adhi Admin'))
         db.session.commit()
+    if not Security.query.filter_by(username='security').first():
+        db.session.add(Security(username='security',password='security123',name='Adhi Security'))
+        db.session.commit()
+    
 
 
 if __name__ == '__main__' :
