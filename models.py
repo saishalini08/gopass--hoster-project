@@ -103,8 +103,7 @@ class Letter(db.Model):
 
     def __repr__(self):
         return f'<Letter {self.id} from {self.student_name}>'
-    
-
+ 
 #Detailed Pass
 class DetailedPass(db.Model):
     id = db.Column(db.Integer, primary_key=True)
