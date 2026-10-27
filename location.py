@@ -4,8 +4,9 @@ import math
 
 location_bp = Blueprint('location', __name__)
 
-PERMITTED_LAT = 12.5702 
-PERMITTED_LNG = 79.4338
+#Adhi Zone
+PERMITTED_LAT = 12.798765
+PERMITTED_LNG = 79.861938
 MAX_RADIUS_KM = 15.0
 
 def calculate_distance(lat1, lon1, lat2, lon2):
